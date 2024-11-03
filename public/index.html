@@ -34,7 +34,7 @@
         }
         button {
             margin-top: 10px;
-            padding: 10px;
+            <!-- padding: 10px; -->
             font-size: 16px;
         }
     </style>
@@ -68,13 +68,14 @@
             const inputText = input.value;
 
             // 使用 Fetch API 发送 POST 请求
-            fetch('/submit', {
+            fetch('https://translator-5q0h.onrender.com/submit', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ inputText }),
             })
+			
             .then(response => response.text())
             .then(data => {
                 console.log(data); // 服务器的响应
