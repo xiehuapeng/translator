@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const translate = require('@vitalets/google-translate-api'); // 引入 google-translate-api
+const { default: translate } = require('@vitalets/google-translate-api');
+
 
 const app = express();
 const PORT = 3000;
