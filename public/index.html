@@ -62,27 +62,51 @@
 
     <script>
         const input = document.getElementById('input');
-        const output = document.getElementById('output');
-        const submitButton = document.getElementById('submit');
+const output = document.getElementById('output');
+const submitButton = document.getElementById('submit');
 
-        // 监听提交按钮的点击事件
-        submitButton.addEventListener('click', function() {
-            const inputText = input.value;
+// 监听提交按钮的点击事件
+submitButton.addEventListener('click', function() {
+    const inputText = input.value.trim(); // 去除空白字符
 
-            // 使用 Fetch API 发送 POST 请求
-            fetch('https://translator-5q0h.onrender.com/submit', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ inputText }),
-            })
-            .then(response => response.text())
-            .then(data => {
-                output.value = data; // 将服务器的响应显示在输出框
-            })
-            .catch(error => console.error('提交失败:', error));
-        });
+    // 检查输入是否为空
+    if (!inputText) {
+        output.value = "请输入要翻译的文本";
+        return;
+    }
+
+    // 禁用按钮并显示加载信息
+    submitButton.disabled = true;
+    output.value = "翻译中...";
+
+    // 使用 Fetch API 发送 POST 请求
+    fetch('https://translator-5q0h.onrender.com/submit', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ inputText }),
+    })
+    .then(response => {
+        // 检查响应状态
+        if (!response.ok) {
+            throw new Error('翻译失败，请稍后重试');
+        }
+        return response.text();
+    })
+    .then(data => {
+        output.value = data; // 将服务器的响应显示在输出框
+    })
+    .catch(error => {
+        console.error('提交失败:', error);
+        output.value = error.message || '翻译失败，请稍后重试';
+    })
+    .finally(() => {
+        // 重新启用按钮
+        submitButton.disabled = false;
+    });
+});
+
     </script>
 </body>
 </html>

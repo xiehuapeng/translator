@@ -1,0 +1,36 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const fs = require('fs');
+
+const app = express();
+const PORT = 3000;
+
+// Middleware
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(express.static('public')); // 允许访问 public 目录中的静态文件
+
+// 处理 POST 请求
+app.post('/submit', (req, res) => {
+    const inputText = req.body.inputText;
+
+    // 打印到控制台
+    console.log('输入的文本:', inputText);
+
+    // 将输入内容写入文件
+    fs.appendFile('output.txt', inputText + '\n', (err) => {
+        if (err) {
+            console.error('写入文件失败:', err);
+        } else {
+            console.log('内容已写入文件 output.txt');
+        }
+    });
+
+    // 返回响应
+    res.send('内容已接收');
+});
+
+// 启动服务器
+app.listen(PORT, () => {
+    console.log(`服务器正在运行在 http://localhost:${PORT}`);
+});

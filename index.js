@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const fs = require('fs');
+const axios = require('axios'); // 用于发送翻译请求
 
 const app = express();
 const PORT = 3000;
@@ -11,23 +11,29 @@ app.use(bodyParser.json());
 app.use(express.static('public')); // 允许访问 public 目录中的静态文件
 
 // 处理 POST 请求
-app.post('/submit', (req, res) => {
+app.post('/submit', async (req, res) => {
     const inputText = req.body.inputText;
 
     // 打印到控制台
     console.log('输入的文本:', inputText);
 
-    // 将输入内容写入文件
-    fs.appendFile('output.txt', inputText + '\n', (err) => {
-        if (err) {
-            console.error('写入文件失败:', err);
-        } else {
-            console.log('内容已写入文件 output.txt');
-        }
-    });
+    try {
+        // 使用 LibreTranslate API 进行翻译
+        const response = await axios.post('https://libretranslate.com/translate', {
+            q: inputText,
+            source: 'auto',    // 自动检测源语言
+            target: 'zh',      // 设置目标语言（此处为中文）
+            format: 'text'
+        });
 
-    // 返回响应
-    res.send('内容已接收');
+        const translatedText = response.data.translatedText;
+
+        // 返回翻译结果
+        res.send(translatedText);
+    } catch (error) {
+        console.error('翻译失败:', error);
+        res.status(500).send('翻译失败，请稍后重试');
+    }
 });
 
 // 启动服务器
