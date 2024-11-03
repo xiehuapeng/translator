@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const axios = require('axios'); // 用于发送翻译请求
+const translate = require('@vitalets/google-translate-api'); // 引入 google-translate-api
 
 const app = express();
 const PORT = 3000;
@@ -18,18 +18,11 @@ app.post('/submit', async (req, res) => {
     console.log('输入的文本:', inputText);
 
     try {
-        // 使用 LibreTranslate API 进行翻译
-        const response = await axios.post('https://libretranslate.com/translate', {
-            q: inputText,
-            source: 'auto',    // 自动检测源语言
-            target: 'zh',      // 设置目标语言（此处为中文）
-            format: 'text'
-        });
-
-        const translatedText = response.data.translatedText;
+        // 使用 google-translate-api 进行翻译
+        const response = await translate(inputText, { to: 'zh-cn' }); // 设置目标语言为中文简体
 
         // 返回翻译结果
-        res.send(translatedText);
+        res.send(response.text); // 将翻译结果发送给前端
     } catch (error) {
         console.error('翻译失败:', error);
         res.status(500).send('翻译失败，请稍后重试');
