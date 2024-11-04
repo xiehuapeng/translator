@@ -64,6 +64,7 @@
         const input = document.getElementById('input');
 const output = document.getElementById('output');
 const submitButton = document.getElementById('submit');
+const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://translator-5q0h.onrender.com';
 
 // 监听提交按钮的点击事件
 submitButton.addEventListener('click', function() {
@@ -80,7 +81,7 @@ submitButton.addEventListener('click', function() {
     output.value = "翻译中...";
 
     // 使用 Fetch API 发送 POST 请求
-    fetch('https://translator-5q0h.onrender.com/submit', {
+    fetch(`${baseUrl}/submit`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
