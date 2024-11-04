@@ -76,7 +76,7 @@ const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:300
 const basewsUrl = window.location.hostname === 'localhost' ? 'localhost:3000' : 'translator-5q0h.onrender.com';
 
 // WebSocket 连接
-const socket = new WebSocket(`ws://${basewsUrl}`);
+const socket = new WebSocket(`wss://${basewsUrl}`);
   // 根据环境调整
 
 // 监听 WebSocket 消息
