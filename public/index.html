@@ -73,8 +73,11 @@ const submitButton = document.getElementById('submit');
 const sendButton = document.getElementById('sendButton');
 const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://translator-5q0h.onrender.com';
 
+const basewsUrl = window.location.hostname === 'localhost' ? 'localhost:3000' : 'translator-5q0h.onrender.com';
+
 // WebSocket 连接
-const socket = new WebSocket('ws://localhost:3000'); // 根据环境调整
+const socket = new WebSocket(`ws://${basewsUrl}`);
+  // 根据环境调整
 
 // 监听 WebSocket 消息
 socket.onmessage = function(event) {
