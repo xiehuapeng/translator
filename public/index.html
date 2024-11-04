@@ -40,6 +40,14 @@
             text-align: center;
             margin: 10px 0;
             font-size: 20px;
+            font-family: 'Pacifico', cursive; /* 与知云翻译相同字体 */
+            position: relative;
+        }
+        /* 仅为“中文（简体）”标题添加向下箭头 */
+        .box h2.chinese::after {
+            content: '▼';
+            font-size: 16px;
+            margin-left: 8px;
         }
         textarea {
             flex: 1;
@@ -89,9 +97,9 @@
             <button id="sendButton">发送内容</button>
         </div>
 
-        <!-- 右下：输出文本框 -->
+        <!-- 右下：输出文本框，标题为“中文（简体）”并带有箭头 -->
         <div class="box">
-            <h2>输出文本</h2>
+            <h2 class="chinese">中文（简体）</h2>
             <textarea id="output" placeholder="翻译结果将显示在这里..." readonly></textarea>
         </div>
     </div>
