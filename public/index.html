@@ -6,157 +6,154 @@
     <title>知云翻译</title>
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        body, html {
             margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
             font-family: Arial, sans-serif;
             background-color: #f5f5f5;
+            overflow: auto; /* 允许滚动 */
         }
-        .container {
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 40px 20px; /* 上下间距更大，左右间距稍小 */
+            width: 1400px; /* 固定宽度 */
+            height: 800px; /* 固定高度 */
+            margin: 40px auto; /* 居中显示 */
+        }
+        .box {
+            padding: 20px;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
             display: flex;
-            justify-content: space-between;
-            width: 1600px; /* 固定宽度 */
+            flex-direction: column;
+            width: 100%; /* 确保占满每个网格 */
+            height: 100%; /* 确保占满每个网格 */
+            box-sizing: border-box;
+            background-color: #fff;
+        }
+        .box h2 {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 20px;
         }
         textarea {
-            width: 700px; /* 固定宽度 */
-            height: 400px; /* 增加高度 */
+            flex: 1;
+            width: 100%;
+            height: calc(100% - 50px); /* 保证按钮和标题有空间 */
             padding: 10px;
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 4px;
             resize: none;
+            box-sizing: border-box;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+            align-self: center;
+            width: 80%;
         }
         .title {
             font-family: 'Pacifico', cursive;
             text-align: center;
             font-size: 36px;
             color: #333;
-            margin-bottom: 20px;
-        }
-        h2 {
-            text-align: center;
-            margin: 10px 0;
-        }
-        button {
-            margin-top: 10px;
-            padding: 10px;
-            font-size: 16px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div>
-            <h2>输出文本</h2>
-            <textarea id="output" placeholder="翻译结果将显示在这里..." readonly></textarea>
+    <div class="grid-container">
+        <!-- 左上：返回内容框 -->
+        <div class="box">
+            <h2>返回内容</h2>
+            <textarea id="responseContent" placeholder="发送后的返回内容将显示在这里..." readonly></textarea>
         </div>
-		<div>
-    <h2>发送内容</h2>
-    <textarea id="dynamicContent" placeholder="在这里粘贴你要发送的内容..."></textarea>
-    <button id="sendButton">发送内容</button>
-</div>
-
-        <div>
+        
+        <!-- 右上：翻译输入框 -->
+        <div class="box">
             <h2 class="title">知云翻译</h2>
             <textarea id="input" placeholder="输入要翻译的文本..."></textarea>
             <button id="submit">翻译</button>
         </div>
+        
+        <!-- 左下：发送内容框 -->
+        <div class="box">
+            <h2>发送内容</h2>
+            <textarea id="dynamicContent" placeholder="在这里粘贴你要发送的内容..."></textarea>
+            <button id="sendButton">发送内容</button>
+        </div>
+
+        <!-- 右下：输出文本框 -->
+        <div class="box">
+            <h2>输出文本</h2>
+            <textarea id="output" placeholder="翻译结果将显示在这里..." readonly></textarea>
+        </div>
     </div>
 
 <script>
+// JavaScript 保持不变
 const input = document.getElementById('input');
 const output = document.getElementById('output');
+const responseContent = document.getElementById('responseContent');
 const submitButton = document.getElementById('submit');
 const sendButton = document.getElementById('sendButton');
 const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://translator-5q0h.onrender.com';
-
 const basewsUrl = window.location.hostname === 'localhost' ? 'localhost:3000' : 'translator-5q0h.onrender.com';
-
-// WebSocket 连接
 const socket = new WebSocket(`wss://${basewsUrl}`);
-  // 根据环境调整
 
-// 监听 WebSocket 消息
 socket.onmessage = function(event) {
-    // 处理接收到的消息
-    output.value = event.data; // 将收到的内容显示在输出框
+    output.value = event.data;
 };
 
-// 监听提交按钮的点击事件
 submitButton.addEventListener('click', function() {
-    const inputText = input.value.trim(); // 去除空白字符
-
-    // 检查输入是否为空
+    const inputText = input.value.trim();
     if (!inputText) {
         output.value = "请输入要翻译的文本";
         return;
     }
-
-    // 禁用按钮并显示加载信息
     submitButton.disabled = true;
     output.value = "翻译中...";
-
-    // 使用 Fetch API 发送 POST 请求
     fetch(`${baseUrl}/submit`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ inputText }),
     })
     .then(response => {
-        // 检查响应状态
-        if (!response.ok) {
-            throw new Error('翻译失败，请稍后重试');
-        }
+        if (!response.ok) throw new Error('翻译失败，请稍后重试');
         return response.text();
     })
-    .then(data => {
-        output.value = data; // 将服务器的响应显示在输出框
-    })
-    .catch(error => {
-        console.error('提交失败:', error);
-        output.value = error.message || '翻译失败，请稍后重试';
-    })
-    .finally(() => {
-        // 重新启用按钮
-        submitButton.disabled = false;
-    });
+    .then(data => { output.value = data; })
+    .catch(error => { output.value = error.message || '翻译失败，请稍后重试'; })
+    .finally(() => { submitButton.disabled = false; });
 });
 
-// 发送动态内容
 sendButton.addEventListener('click', function() {
     const dynamicContent = document.getElementById('dynamicContent').value.trim();
-
-    // 检查内容是否为空
     if (!dynamicContent) {
         alert("请粘贴要发送的内容");
         return;
     }
-
-    // 发送内容到服务器
     fetch(`${baseUrl}/send`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: dynamicContent }),
     })
     .then(response => {
-        if (!response.ok) {
-            throw new Error('发送失败，请稍后重试');
-        }
-        return response.json(); // 获取 JSON 响应
+        if (!response.ok) throw new Error('发送失败，请稍后重试');
+        return response.json();
     })
     .then(data => {
-        alert(data.message); // 显示确认消息
-        document.getElementById('dynamicContent').value = ''; // 清空文本框
+        responseContent.value = data.originalContent;
+        alert(data.message);
+        document.getElementById('dynamicContent').value = '';
     })
     .catch(error => {
-        console.error('发送失败:', error);
         alert(error.message || '发送失败，请稍后重试');
     });
 });
