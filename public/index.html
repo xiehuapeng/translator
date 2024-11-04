@@ -116,7 +116,7 @@ const basewsUrl = window.location.hostname === 'localhost' ? 'localhost:3000' : 
 const socket = new WebSocket(`wss://${basewsUrl}`);
 
 socket.onmessage = function(event) {
-    output.value = event.data;
+    responseContent.value = event.data;
 };
 
 submitButton.addEventListener('click', function() {
