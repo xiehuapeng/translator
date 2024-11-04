@@ -53,6 +53,12 @@
             <h2>输出文本</h2>
             <textarea id="output" placeholder="翻译结果将显示在这里..." readonly></textarea>
         </div>
+		<div>
+    <h2>发送内容</h2>
+    <textarea id="dynamicContent" placeholder="在这里粘贴你要发送的内容..."></textarea>
+    <button id="sendButton">发送内容</button>
+</div>
+
         <div>
             <h2 class="title">知云翻译</h2>
             <textarea id="input" placeholder="输入要翻译的文本..."></textarea>
@@ -60,11 +66,21 @@
         </div>
     </div>
 
-    <script>
-        const input = document.getElementById('input');
+<script>
+const input = document.getElementById('input');
 const output = document.getElementById('output');
 const submitButton = document.getElementById('submit');
+const sendButton = document.getElementById('sendButton');
 const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://translator-5q0h.onrender.com';
+
+// WebSocket 连接
+const socket = new WebSocket('ws://localhost:3000'); // 根据环境调整
+
+// 监听 WebSocket 消息
+socket.onmessage = function(event) {
+    // 处理接收到的消息
+    output.value = event.data; // 将收到的内容显示在输出框
+};
 
 // 监听提交按钮的点击事件
 submitButton.addEventListener('click', function() {
@@ -108,6 +124,40 @@ submitButton.addEventListener('click', function() {
     });
 });
 
-    </script>
+// 发送动态内容
+sendButton.addEventListener('click', function() {
+    const dynamicContent = document.getElementById('dynamicContent').value.trim();
+
+    // 检查内容是否为空
+    if (!dynamicContent) {
+        alert("请粘贴要发送的内容");
+        return;
+    }
+
+    // 发送内容到服务器
+    fetch(`${baseUrl}/send`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: dynamicContent }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('发送失败，请稍后重试');
+        }
+        return response.json(); // 获取 JSON 响应
+    })
+    .then(data => {
+        alert(data.message); // 显示确认消息
+        document.getElementById('dynamicContent').value = ''; // 清空文本框
+    })
+    .catch(error => {
+        console.error('发送失败:', error);
+        alert(error.message || '发送失败，请稍后重试');
+    });
+});
+</script>
+
 </body>
 </html>
