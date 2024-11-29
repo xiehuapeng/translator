@@ -134,9 +134,9 @@ submitButton.addEventListener('click', function() {
     })
     .then(response => {
         if (!response.ok) throw new Error('翻译失败，请稍后重试');
-        return response.text();
+        return response.json();
     })
-    .then(data => { output.value = data; })
+    .then(data => { output.value = data.data;  })
     .catch(error => { output.value = error.message || '翻译失败，请稍后重试'; })
     .finally(() => { submitButton.disabled = false; });
 });
